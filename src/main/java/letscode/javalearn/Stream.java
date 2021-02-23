@@ -56,7 +56,7 @@ class Streams {
         Files.walk(Paths.get("./"), 3);
 
         IntStream intStream1 = IntStream.of(1, 2, 3, 4);
-        DoubleStream.of(1.2, 3.4);
+        DoubleStream doubleStream = DoubleStream.of(1.2, 3.4);
         IntStream range = IntStream.range(10, 100); //10....99
         IntStream rangeClosed = IntStream.rangeClosed(10, 100);//10....100
 
