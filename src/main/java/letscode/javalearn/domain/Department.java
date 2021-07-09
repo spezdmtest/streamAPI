@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Data
+@RequiredArgsConstructor
 @ToString(of={"id","child"})
 public class Department {
     private final int id;

@@ -1,5 +1,6 @@
 package letscode.javalearn;
 
+import javafx.geometry.Pos;
 import letscode.javalearn.domain.Department;
 import letscode.javalearn.domain.Employee;
 import letscode.javalearn.domain.Event;
@@ -12,14 +13,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.IntBinaryOperator;
+import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-class Streams {
+public class Streams {
     private List<Employee> emps = List.of(
             new Employee("Michael", "Smith", 243, 43, Position.CHEF),
             new Employee("Jane", "Smith", 523, 40, Position.MANAGER),
@@ -79,5 +80,54 @@ class Streams {
         );
 
         Stream<Integer> iterate = Stream.iterate(1950, val -> val + 3);
+        Stream<String> concat = Stream.concat(stringStream, build);
     }
+
+    @Test
+    public void terminate() {
+        emps.stream().count();
+        // emps.stream().forEach(employee -> System.out.println(employee.getAge()));
+        // emps.forEach(employee -> System.out.println(employee.getAge()));
+        // emps.stream().forEachOrdered(employee -> System.out.println(employee.getAge()));
+        emps.stream().collect(Collectors.toList());
+        emps.stream().toArray();
+        Map<Integer, String> collect = emps.stream().collect(Collectors.toMap(
+                Employee::getId,
+                emp -> String.format("%s %s", emp.getLastName(), emp.getFirstName())
+        ));
+
+        IntStream intStream = IntStream.of(100, 200, 300, 400);
+        intStream.reduce((left, right) -> left + right).orElse(0);
+
+        System.out.println(deps.stream().reduce(this::reducer));
+
+        System.out.println(IntStream.of(100,200,300,400).average());
+        System.out.println(IntStream.of(100,200,300,400).max());
+        System.out.println(IntStream.of(100,200,300,400).min());
+        System.out.println(IntStream.of(100,200,300,400).sum());
+        System.out.println(IntStream.of(100,200,300,400).summaryStatistics());
+        System.out.println(emps.stream().max(Comparator.comparing(Employee::getAge)));
+        emps.stream().findAny();
+        emps.stream().findFirst();
+
+        emps.stream().noneMatch(employee -> employee.getAge() > 60);
+        emps.stream().anyMatch(employee -> employee.getPosition() == Position.CHEF);
+    }
+
+    public Department reducer(Department parent, Department child) {
+        if (child.getParent() == parent.getId()) {
+            parent.getChild().add(child);
+        } else {
+            parent.getChild().forEach(subParent -> reducer(subParent,child));
+        }
+        return parent;
+}
+
+
+
+
+
+
+
+
 }
