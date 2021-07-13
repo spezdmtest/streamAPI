@@ -1,6 +1,5 @@
 package letscode.javalearn;
 
-import javafx.geometry.Pos;
 import letscode.javalearn.domain.Department;
 import letscode.javalearn.domain.Employee;
 import letscode.javalearn.domain.Event;
@@ -14,7 +13,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.function.IntBinaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
@@ -101,33 +99,90 @@ public class Streams {
 
         System.out.println(deps.stream().reduce(this::reducer));
 
-        System.out.println(IntStream.of(100,200,300,400).average());
-        System.out.println(IntStream.of(100,200,300,400).max());
-        System.out.println(IntStream.of(100,200,300,400).min());
-        System.out.println(IntStream.of(100,200,300,400).sum());
-        System.out.println(IntStream.of(100,200,300,400).summaryStatistics());
+        System.out.println(IntStream.of(100, 200, 300, 400).average());
+        System.out.println(IntStream.of(100, 200, 300, 400).max());
+        System.out.println(IntStream.of(100, 200, 300, 400).min());
+        System.out.println(IntStream.of(100, 200, 300, 400).sum());
+        System.out.println(IntStream.of(100, 200, 300, 400).summaryStatistics());
         System.out.println(emps.stream().max(Comparator.comparing(Employee::getAge)));
         emps.stream().findAny();
         emps.stream().findFirst();
 
-        emps.stream().noneMatch(employee -> employee.getAge() > 60);
-        emps.stream().anyMatch(employee -> employee.getPosition() == Position.CHEF);
+        emps.stream().noneMatch(employee -> employee.getAge() > 60); // true
+        emps.stream().anyMatch(employee -> employee.getPosition() == Position.CHEF); //true
+        emps.stream().allMatch(employee -> employee.getAge() > 18);
     }
+
+    @Test
+    public void transform() {
+        //IntStream.of(100, 200, 300, 400).mapToLong(Long::valueOf).forEach(System.out::println);
+        IntStream.of(100, 200, 300, 400).mapToObj(value ->
+                        new Event(UUID.randomUUID(), LocalDateTime.of(value, 12, 1, 12,0), " ")
+        );
+//        IntStream.of(100, 200, 300, 400,100,200).distinct().forEach(System.out::println);
+
+//        emps.stream()
+//                .filter(employee -> employee.getPosition() != Position.CHEF)
+//                .collect(Collectors.toList())
+//                .forEach(System.out::println);
+//
+//        System.out.println();
+//        emps.stream().skip(3).forEach(System.out::println);
+//        System.out.println();
+//        emps.stream().limit(5).forEach(System.out::println);
+
+//        emps.stream()
+//                .sorted(Comparator.comparingInt(Employee::getAge))
+//                .peek(emp -> emp.setAge(18))
+//                .map(emp -> String.format("%s %s %s", emp.getLastName(), emp.getFirstName(),emp.getAge()))
+//                .forEach(System.out::println);
+        emps.stream().takeWhile(employee -> employee.getAge() > 30).forEach(System.out::println);
+        System.out.println();
+        emps.stream().dropWhile(employee -> employee.getAge() > 30).forEach(System.out::println);
+
+//        IntStream.of(100,200,300,400)
+//                    .flatMap(value -> IntStream.of(value-50,value))
+//                    .forEach(System.out::println);
+        }
+
+     @Test
+     public void real() {
+         Stream<Employee> empl = emps.stream()
+                 .filter(employee -> employee.getAge() <= 30 && employee.getPosition() != Position.WORKER)
+                 .sorted(Comparator.comparing(Employee::getLastName));
+         print(empl);
+         System.out.println();
+         Stream<Employee> sorted = emps.stream()
+                 .filter(employee -> employee.getAge() > 40)
+                 .sorted(Comparator.comparing(Employee::getAge));
+          print(sorted);
+
+         IntSummaryStatistics statistics = emps.stream()
+                 .mapToInt(Employee::getAge)
+                 .summaryStatistics();
+         System.out.println(statistics);
+
+     }
+
+     private void print(Stream<Employee> stream) {
+        stream
+                    .map(emp -> String.format(
+                            "%4d | %-15s %-10s age %s %s",
+                            emp.getId(),
+                            emp.getLastName(),
+                            emp.getFirstName(),
+                            emp.getAge(),
+                            emp.getPosition()
+                    )).forEach(System.out::println);
+     }
+
 
     public Department reducer(Department parent, Department child) {
         if (child.getParent() == parent.getId()) {
             parent.getChild().add(child);
         } else {
-            parent.getChild().forEach(subParent -> reducer(subParent,child));
+            parent.getChild().forEach(subParent -> reducer(subParent, child));
         }
         return parent;
-}
-
-
-
-
-
-
-
-
+    }
 }
